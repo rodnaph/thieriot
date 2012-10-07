@@ -22,7 +22,7 @@ Thierot 0.0.1
 Configuration
 -------------
 
-Configuration is handled via a YAML file in your project root called _.thieriot_.
+Configuration is handled via a YAML file in your project root called _.thieriot.yml_.
 
 ```yaml
 jenkins_url: jenkins.mycompany.com
