@@ -60,6 +60,17 @@ then you can kick them off from the shell.
 trt build 3
 ```
 
+Deleting a job
+--------------
+
+When you're done with feature branches, it's easy to delete them right from the shell.
+
+```bash
+trt delete 2
+```
+
+Watch you don't delete master though! :O
+
 Installation
 ------------
 
