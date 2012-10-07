@@ -144,7 +144,7 @@ sub branch_build
     my $project = project_name($config);
     my $ua = LWP::UserAgent->new;
 
-    my $res = $ua->request( POST jenkins_url($config, "/job/$project-$branch/build") );
+    $ua->request( POST jenkins_url($config, "/job/$project-$branch/build") );
 
     print "Branch '$branch' now building!\n";
 }
@@ -158,18 +158,17 @@ sub branch_create
     my $project = project_name($config);
     my $xml = fetch_branch_config($config, 'master');
     my $ua = LWP::UserAgent->new;
-    my $res;
 
     $xml =~ s!<name>master</name>!<name>$branch</name>!;
 
-    $res = $ua->request( POST jenkins_url($config, '/createItem'),
-                              [ mode => 'copy',
-                                from => "$project-master",
-                                name => "$project-$branch" ] );
+    $ua->request( POST jenkins_url($config, '/createItem'),
+                       [ mode => 'copy',
+                         from => "$project-master",
+                         name => "$project-$branch" ] );
 
-    $res = $ua->request( POST config_url($config, $branch),
-                              Content_Type => 'text/xml',
-                              Content => $xml );
+    $ua->request( POST config_url($config, $branch),
+                       Content_Type => 'text/xml',
+                       Content => $xml );
 
     sleep(2);
 
