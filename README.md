@@ -63,15 +63,25 @@ trt build 3
 Installation
 ------------
 
-Just clone the repo and put it in your PATH.
+Just clone the repo and put it in your PATH.  You might also need some of the dependencies,
+listed below depending on your OS.
 
-Dependencies: Macports
-----------------------
+Macports
+--------
 
 Replace the Perl version if you're using a different one.
 
 ```bash
 sudo port install p5.12-yaml p5.12-json
+```
+
+CPAN
+----
+
+```
+$> sudo cpan
+install JSON
+install YAML
 ```
 
 @TODO
