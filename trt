@@ -2,10 +2,12 @@
 
 use strict;
 
+use Cwd;
 use YAML qw(LoadFile);
 use JSON qw(decode_json);
 use LWP::UserAgent;
 use HTTP::Request::Common;
+use File::Basename;
 
 use constant VERSION => '0.0.2';
 
@@ -47,13 +49,24 @@ sub fetch_json
 }
 
 #
+# try and guess project name
+#
+sub guess_project_name
+{
+    return basename(getcwd);
+}
+
+#
 # returns the projects name
 #
 sub project_name
 {
     my ($config) = @_;
+    my $configuredName = $config->{project_name};
 
-    return $config->{project_name};
+    return $configuredName
+        ? $configuredName
+        : guess_project_name();
 }
 
 #

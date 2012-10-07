@@ -107,10 +107,3 @@ install JSON
 install YAML
 ```
 
-@TODO
------
-
-* Try to work out project name from project folder (if not specified)
-* Allow running from any folder inside a project (traversing back up to find .thieriot.yml)
-* Add better error reporting (currently basically none)
-
