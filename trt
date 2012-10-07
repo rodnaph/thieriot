@@ -9,7 +9,18 @@ use LWP::UserAgent;
 use HTTP::Request::Common;
 use File::Basename;
 
-use constant VERSION => '0.0.2';
+use constant VERSION => '0.0.3';
+
+#
+# signal an error message and exit
+#
+sub error
+{
+    my ($message) = @_;
+
+    print "Fatal Error: $message\n";
+    exit 1;
+}
 
 #
 # makes a request, adding any required auth info
@@ -24,7 +35,13 @@ sub make_request
         $ENV{'THIERIOT_TOKEN'}
     );
 
-    return $ua->request( $req );
+    my $res = $ua->request( $req );
+
+    if ($res->is_error) {
+        error("request failed\n\n" . $res->decoded_content);
+    }
+
+    return $res;
 }
 
 #
@@ -149,8 +166,13 @@ sub fetch_branch
 {
     my ($id) = @_;
     my @branches = fetch_branches();
+    my $name = $branches[$id - 1];
 
-    return $branches[$id - 1];
+    if (!$name) {
+        error('Invalid branch ID')
+    }
+
+    return $name;
 }
 
 #
@@ -181,7 +203,6 @@ sub branch_list
         print "$bool \e[0;32m[$index]\e[0m\t$_\n";
         $index++;
     }
-
 }
 
 #
