@@ -41,14 +41,24 @@ sub jenkins_url
 }
 
 #
+# fetch the url relative to a branch's job
+#
+sub job_url
+{
+    my ($config, $branch, $url) = @_;
+    my $project = project_name($config);
+
+    return jenkins_url($config, "/job/$project-$branch$url");
+}
+
+#
 # returns url for a jobs config
 #
 sub config_url
 {
     my ($config, $branch) = @_;
-    my $project = project_name($config);
 
-    return jenkins_url($config, "/job/$project-$branch/config.xml");
+    return job_url($config, $branch, '/config.xml');
 }
 
 #
@@ -144,7 +154,7 @@ sub branch_build
     my $project = project_name($config);
     my $ua = LWP::UserAgent->new;
 
-    $ua->request( POST jenkins_url($config, "/job/$project-$branch/build") );
+    $ua->request( POST job_url($config, $branch, '/build') );
 
     print "Branch '$branch' now building!\n";
 }
@@ -176,6 +186,20 @@ sub branch_create
 }
 
 #
+# allows deleting a branch
+#
+sub branch_delete
+{
+    my ($config, $branch) = @_;
+    my $project = project_name($config);
+    my $ua = LWP::UserAgent->new;
+
+    $ua->request( POST job_url($config, $branch, '/doDelete') );
+    
+    print "Branch '$branch' deleted!\n";
+}
+
+#
 # prints usage information
 #
 sub print_help
@@ -185,6 +209,7 @@ Usage: trt ACTION ID
 
     create ID       Create a job for branch ID
     build ID        Build job for branch ID
+    delete ID       Delete job for branch ID
 EOT
 
 }
@@ -204,6 +229,10 @@ if ($action eq "create") {
 
 elsif ($action eq "build") {
     branch_build($config, fetch_branch($id));
+}
+
+elsif ($action eq "delete") {
+    branch_delete($config, fetch_branch($id));
 }
 
 else {
