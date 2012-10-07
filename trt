@@ -8,8 +8,9 @@ use JSON qw(decode_json);
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use File::Basename;
+use Data::Dumper;
 
-use constant VERSION => '0.0.3';
+use constant VERSION => '0.0.4';
 
 #
 # signal an error message and exit
@@ -66,14 +67,6 @@ sub fetch_json
 }
 
 #
-# try and guess project name
-#
-sub guess_project_name
-{
-    return basename(getcwd);
-}
-
-#
 # returns the projects name
 #
 sub project_name
@@ -83,7 +76,7 @@ sub project_name
 
     return $configuredName
         ? $configuredName
-        : guess_project_name();
+        : basename(getcwd);
 }
 
 #
@@ -152,14 +145,6 @@ sub fetch_branches
 }
 
 #
-# reads the YAML config and returns it
-#
-sub fetch_config
-{
-    return LoadFile('.thieriot.yml');
-}
-
-#
 # fetch a branch name by id
 #
 sub fetch_branch
@@ -187,6 +172,16 @@ sub fetch_branch_config
 }
 
 #
+# indicates if a job is currently building
+#
+sub is_building
+{
+    my ($job) = @_;
+
+    return $job && substr($job->{color},-5) eq "anime";
+}
+
+#
 # lists all branches, indicating if they have a job
 #
 sub branch_list
@@ -197,10 +192,15 @@ sub branch_list
     my $index = 1;
 
     foreach (@branches) {
-        my $bool = $jobs{$_}
+        my $job = $jobs{$_};
+        my $exists = $job
             ? "\e[0:36m✓\e[0m"
             : "\e[0;31m✘\e[0m";
-        print "$bool \e[0;32m[$index]\e[0m\t$_\n";
+        my $building = is_building($job)
+            ? ' (building)'
+            : '';
+
+        print "$exists \e[0;32m[$index]\e[0m\t$_$building\n";
         $index++;
     }
 }
@@ -214,8 +214,6 @@ sub branch_build
     my $project = project_name($config);
 
     make_request(POST job_url($config, $branch, '/build'));
-
-    print "Branch '$branch' now building!\n";
 }
 
 #
@@ -252,8 +250,6 @@ sub branch_delete
     my $project = project_name($config);
 
     make_request(POST job_url($config, $branch, '/doDelete'));
-    
-    print "Branch '$branch' deleted!\n";
 }
 
 #
@@ -267,6 +263,7 @@ Usage: trt ACTION ID
     create ID       Create a job for branch ID
     build ID        Build job for branch ID
     delete ID       Delete job for branch ID
+    view ID         Open browser to jobs page
 EOT
 
 }
@@ -276,20 +273,30 @@ EOT
 #
 
 my($action, $id) = @ARGV;
-my $config = fetch_config();
+my $config = LoadFile('.thieriot.yml');
+my $branch = fetch_branch($id) unless !$id;
 
 print "Thieriot " . VERSION . " (help: 'trt help')\n\n";
 
 if ($action eq "create") {
-    branch_create($config, fetch_branch($id));
+    branch_create($config, $branch);
+    print "Created branch '$branch', and now building!\n";
 }
 
 elsif ($action eq "build") {
-    branch_build($config, fetch_branch($id));
+    branch_build($config, $branch);
+    print "Branch '$branch' now building!\n";
 }
 
 elsif ($action eq "delete") {
-    branch_delete($config, fetch_branch($id));
+    branch_delete($config, $branch);
+    print "Branch '$branch' deleted!\n";
+}
+
+elsif ($action eq "view") {
+    my $url = job_url($config, $branch, '/');
+    `open $url`;
+    print "Browser opened.\n";
 }
 
 else {

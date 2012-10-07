@@ -13,11 +13,16 @@ Usage
 $> trt
 Thieriot 0.0.1
 
-✓ [1]   master
+✓ [1]   master (building)
 ✘ [2]   new-feature-branch
 ✓ [3]   other feature branch
-
 ```
+
+As you can see, each of your branches will be listed, along with...
+
+* a tick/cross indicating if it has a built on Jenkins
+* an ID you can refer to it as for create/build/delete commands
+* information about if it is currently building or not
 
 Configuration
 -------------
@@ -57,7 +62,7 @@ your feature branches.  This obviously means you need to create your master
 build yourself, but after that setting up jobs for your feature branches is easy.
 
 ```bash
-trt create 2
+$> trt create 2
 ```
 
 This will try and create a job for the branch numbered _2_.
@@ -69,7 +74,7 @@ Your jobs will probably build automatically on some commit hooks, but if they do
 then you can kick them off from the shell.
 
 ```bash
-trt build 3
+$> trt build 3
 ```
 
 Deleting a job
@@ -78,10 +83,21 @@ Deleting a job
 When you're done with feature branches, it's easy to delete them right from the shell.
 
 ```bash
-trt delete 2
+$> trt delete 2
 ```
 
 Watch you don't delete master though! :O
+
+Viewing a job
+-------------
+
+To quickly open your browser to the jobs page, use the view command.
+
+```bash
+$> trt view 2
+```
+
+(NB: Only work son OSX at the moment)
 
 Installation
 ------------
@@ -95,7 +111,7 @@ Macports
 Replace the Perl version if you're using a different one.
 
 ```bash
-sudo port install p5.12-yaml p5.12-json
+$> sudo port install p5.12-yaml p5.12-json
 ```
 
 CPAN
