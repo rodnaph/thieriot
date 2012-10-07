@@ -263,7 +263,7 @@ Usage: trt ACTION ID
     create ID       Create a job for branch ID
     build ID        Build job for branch ID
     delete ID       Delete job for branch ID
-    view ID         Open browser to jobs page
+    view ID         Open browser to the jobs page for the branch ID
 EOT
 
 }

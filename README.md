@@ -20,14 +20,16 @@ Thieriot 0.0.1
 
 As you can see, each of your branches will be listed, along with...
 
-* a tick/cross indicating if it has a built on Jenkins
-* an ID you can refer to it as for create/build/delete commands
+* a tick/cross indicating if it has a build on Jenkins
+* an ID you can refer to it as for commands
 * information about if it is currently building or not
 
 Configuration
 -------------
 
-Configuration is handled via a YAML file in your project root called _.thieriot.yml_.
+Configuration is handled via a YAML file in your project root called _.thieriot.yml_.  The only required
+parameter is the _jenkins_url_, if you don't specify the project name it will be guessed from the folder
+name of your project.
 
 ```yaml
 jenkins_url: jenkins.mycompany.com
@@ -46,7 +48,7 @@ Authentication
 --------------
 
 If your Jenkins instance requires authentication you can configure this using your
-Jenkins user name and your API token.  Just create the following environment
+Jenkins username and your API token.  Just create the following environment
 variables (eg. in .bash_profile or .zshrc).
 
 ```bash
@@ -91,18 +93,18 @@ Watch you don't delete master though! :O
 Viewing a job
 -------------
 
-To quickly open your browser to the jobs page, use the view command.
+To quickly open your browser to the branch's jobs page on Jenkins, use the view command.
 
 ```bash
 $> trt view 2
 ```
 
-(NB: Only work son OSX at the moment)
+(NB: Only works on OSX at the moment)
 
 Installation
 ------------
 
-Just clone the repo and put it in your PATH.  You might also need some of the dependencies,
+To install Thieriot just clone the repo, and put it in your _PATH_.  You might also need some of the dependencies,
 listed below depending on your OS.
 
 Macports
