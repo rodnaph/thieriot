@@ -1,0 +1,199 @@
+#!/usr/bin/env perl
+
+use strict;
+
+use YAML qw(LoadFile);
+use JSON qw(decode_json);
+use LWP::UserAgent;
+use LWP::Simple;
+use HTTP::Request::Common;
+
+use constant VERSION => '0.0.1';
+
+#
+# fetches json from the specfied url
+#
+sub fetch_json
+{
+    my ($url) = @_;
+
+    return decode_json(get($url));
+}
+
+#
+# returns the projects name
+#
+sub project_name
+{
+    my ($config) = @_;
+
+    return $config->{project_name};
+}
+
+#
+# creates and returns a url to jenkins
+#
+sub jenkins_url
+{
+    my ($config, $url) = @_;
+
+    return "http://$config->{jenkins_url}$url";
+}
+
+#
+# returns url for a jobs config
+#
+sub config_url
+{
+    my ($config, $branch) = @_;
+    my $project = project_name($config);
+
+    return jenkins_url($config, "/job/$project-$branch/config.xml");
+}
+
+#
+# fetches the projects jobs from jenkins
+#
+sub fetch_jobs
+{
+    my ($config) = @_;
+    my $url = jenkins_url($config, '/api/json');
+    my $json = fetch_json($url);
+    my $project = project_name($config);
+    my %jobs;
+
+    foreach (@{$json->{jobs}}) {
+        if ($_->{name} =~ m/^$project-(.*)/) {
+            $jobs{$1} = $_;
+        }
+    }
+
+    return %jobs;
+}
+
+#
+# returns array of local branch names
+#
+sub fetch_branches
+{
+    my @branches;
+
+    foreach (`git branch`) {
+        push(@branches, substr($_, 2, -1));
+    }
+    
+    return @branches;
+}
+
+#
+# reads the YAML config and returns it
+#
+sub fetch_config
+{
+    return LoadFile('.thieriot.yml');
+}
+
+#
+# fetch a branch name by id
+#
+sub fetch_branch
+{
+    my ($id) = @_;
+    my @branches = fetch_branches();
+
+    return $branches[$id - 1];
+}
+
+#
+# fetches the xml config for a branch
+#
+sub fetch_branch_config
+{
+    my ($config, $branch) = @_;
+    my $url = config_url($config, $branch);
+
+    return get($url);
+}
+
+#
+# lists all branches, indicating if they have a job
+#
+sub branch_list
+{
+    my ($config) = @_;
+    my %jobs = fetch_jobs($config);
+    my @branches = fetch_branches();
+    my $index = 1;
+
+    foreach (@branches) {
+        my $bool = $jobs{$_} ? '✓' : '✘';
+        print "$bool [$index]\t$_\n";
+        $index++;
+    }
+
+}
+
+#
+# builds a branch specfied by index
+#
+sub branch_build
+{
+    my ($config, $branch) = @_;
+    my $project = project_name($config);
+    my $ua = LWP::UserAgent->new;
+
+    my $res = $ua->request( POST jenkins_url($config, "/job/$project-$branch/build") );
+
+    print "Branch '$branch' now building!\n";
+}
+
+#
+# creates a new branch specified by index
+#
+sub branch_create
+{
+    my ($config, $branch) = @_;
+    my $project = project_name($config);
+    my $xml = fetch_branch_config($config, 'master');
+    my $ua = LWP::UserAgent->new;
+    my $res;
+
+    $xml =~ s!<name>master</name>!<name>$branch</name>!;
+
+    $res = $ua->request( POST jenkins_url($config, '/createItem'),
+                              [ mode => 'copy',
+                                from => "$project-master",
+                                name => "$project-$branch" ] );
+
+    $res = $ua->request( POST config_url($config, $branch),
+                              Content_Type => 'text/xml',
+                              Content => $xml );
+
+    sleep(2);
+
+    branch_build($config, $branch);
+}
+
+#
+# main
+#
+
+my($action, $id) = @ARGV;
+my $config = fetch_config();
+
+print "Thieriot " . VERSION . "\n\n";
+
+if ($action eq "create") {
+    branch_create($config, fetch_branch($id));
+}
+
+elsif ($action eq "build") {
+    branch_build($config, fetch_branch($id));
+}
+
+else {
+    branch_list($config);
+}
+
+print "\n";
+

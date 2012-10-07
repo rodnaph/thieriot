@@ -16,6 +16,7 @@ Thierot 0.0.1
 ✓ [1]   master
 ✘ [2]   new-feature-branch
 ✓ [3]   other feature branch
+
 ```
 
 Configuration
@@ -24,8 +25,16 @@ Configuration
 Configuration is handled via a YAML file in your project root called _.thieriot_.
 
 ```yaml
-jenkins_url = jenkins.mycompany.com
-project_view = MyProject
+jenkins_url: jenkins.mycompany.com
+project_name: myproject
+```
+
+Thieriot assumes your jobs are named after your project, with a hyphen then the branch name.  For example:
+
+```
+myproject-master
+myproject-featurebranch
+etc...
 ```
 
 Creating a Jenkins job
@@ -50,4 +59,25 @@ then you can kick them off from the shell.
 ```bash
 trt build 3
 ```
+
+Installation
+------------
+
+Just clone the repo and put it in your PATH.
+
+Dependencies: Macports
+----------------------
+
+Replace the Perl version if you're using a different one.
+
+```bash
+sudo port install p5.12-yaml p5.12-json
+```
+
+@TODO
+-----
+
+* Try to work out project name from project folder (if not specified)
+* Allow running from any folder inside a project (traversing back up to find .thieriot.yml)
+* Add better error reporting (currently basically none)
 
