@@ -126,8 +126,10 @@ sub branch_list
     my $index = 1;
 
     foreach (@branches) {
-        my $bool = $jobs{$_} ? '✓' : '✘';
-        print "$bool [$index]\t$_\n";
+        my $bool = $jobs{$_}
+            ? "\e[0:36m✓\e[0m"
+            : "\e[0;31m✘\e[0m";
+        print "$bool \e[0;32m[$index]\e[0m\t$_\n";
         $index++;
     }
 
@@ -175,13 +177,27 @@ sub branch_create
 }
 
 #
+# prints usage information
+#
+sub print_help
+{
+    print <<EOT;
+Usage: trt ACTION ID
+
+    create ID       Create a job for branch ID
+    build ID        Build job for branch ID
+EOT
+
+}
+
+#
 # main
 #
 
 my($action, $id) = @ARGV;
 my $config = fetch_config();
 
-print "Thieriot " . VERSION . "\n\n";
+print "Thieriot " . VERSION . " (help: 'trt help')\n\n";
 
 if ($action eq "create") {
     branch_create($config, fetch_branch($id));
@@ -192,7 +208,12 @@ elsif ($action eq "build") {
 }
 
 else {
-    branch_list($config);
+    if ( $action ) {
+        print_help();
+    }
+    else {
+        branch_list($config);
+    }
 }
 
 print "\n";
