@@ -5,10 +5,36 @@ use strict;
 use YAML qw(LoadFile);
 use JSON qw(decode_json);
 use LWP::UserAgent;
-use LWP::Simple;
 use HTTP::Request::Common;
 
-use constant VERSION => '0.0.1';
+use constant VERSION => '0.0.2';
+
+#
+# makes a request, adding any required auth info
+#
+sub make_request
+{
+    my ($req) = @_;
+    my $ua = LWP::UserAgent->new;
+
+    $req->authorization_basic(
+        $ENV{'THIERIOT_USER'},
+        $ENV{'THIERIOT_TOKEN'}
+    );
+
+    return $ua->request( $req );
+}
+
+#
+# perform a GET and return the content
+#
+sub get
+{
+    my ($url) = @_;
+    my $res = make_request(GET $url);
+
+    return $res->decoded_content;
+}
 
 #
 # fetches json from the specfied url
@@ -152,9 +178,8 @@ sub branch_build
 {
     my ($config, $branch) = @_;
     my $project = project_name($config);
-    my $ua = LWP::UserAgent->new;
 
-    $ua->request( POST job_url($config, $branch, '/build') );
+    make_request(POST job_url($config, $branch, '/build'));
 
     print "Branch '$branch' now building!\n";
 }
@@ -167,18 +192,17 @@ sub branch_create
     my ($config, $branch) = @_;
     my $project = project_name($config);
     my $xml = fetch_branch_config($config, 'master');
-    my $ua = LWP::UserAgent->new;
 
     $xml =~ s!<name>master</name>!<name>$branch</name>!;
 
-    $ua->request( POST jenkins_url($config, '/createItem'),
-                       [ mode => 'copy',
-                         from => "$project-master",
-                         name => "$project-$branch" ] );
+    make_request(POST jenkins_url($config, '/createItem'),
+                      [ mode => 'copy',
+                        from => "$project-master",
+                        name => "$project-$branch" ]);
 
-    $ua->request( POST config_url($config, $branch),
-                       Content_Type => 'text/xml',
-                       Content => $xml );
+    make_request(POST config_url($config, $branch),
+                      Content_Type => 'text/xml',
+                      Content => $xml);
 
     sleep(2);
 
@@ -192,9 +216,8 @@ sub branch_delete
 {
     my ($config, $branch) = @_;
     my $project = project_name($config);
-    my $ua = LWP::UserAgent->new;
 
-    $ua->request( POST job_url($config, $branch, '/doDelete') );
+    make_request(POST job_url($config, $branch, '/doDelete'));
     
     print "Branch '$branch' deleted!\n";
 }

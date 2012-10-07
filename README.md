@@ -37,6 +37,18 @@ myproject-featurebranch
 etc...
 ```
 
+Authentication
+--------------
+
+If your Jenkins instance requires authentication you can configure this using your
+Jenkins user name and your API token.  Just create the following environment
+variables (eg. in .bash_profile or .zshrc).
+
+```bash
+export THIERIOT_USER=myuser
+export THIERIOT_TOKEN=jj324g23jh4gj32h4g3hj4g234j23
+```
+
 Creating a Jenkins job
 ----------------------
 
