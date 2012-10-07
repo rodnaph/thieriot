@@ -11,7 +11,7 @@ Usage
 
 ```bash
 $> trt
-Thierot 0.0.1
+Thieriot 0.0.1
 
 ✓ [1]   master
 ✘ [2]   new-feature-branch
