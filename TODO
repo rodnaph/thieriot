@@ -1,6 +1,0 @@
-
-@TODO
------
-
-* Allow running from any folder inside a project (traversing back up to find .thieriot.yml)
-
