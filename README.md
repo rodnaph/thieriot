@@ -102,22 +102,28 @@ $> trt view 2
 (NB: Only works on OSX at the moment)
 
 Installation
-------------
-
-To install Thieriot just clone the repo, and put it in your _PATH_.  You might also need some of the dependencies,
-listed below depending on your OS.
+============
 
 Macports
 --------
 
-Replace the Perl version if you're using a different one.
+You can install Thieriot straight through MacPorts.
 
 ```bash
-$> sudo port install p5.12-yaml p5.12-json
+port install thieriot
 ```
 
-CPAN
-----
+From Source
+-----------
+
+To install Thieriot from source just clone the repo, and put it in your _PATH_.
+You might also need some of the dependencies, listed below depending on your OS.
+
+ * Perl
+ * Perl JSON
+ * Perl JAML
+
+Perl modules available from CPAN if they're not packaged for your OS.
 
 ```
 $> sudo cpan
