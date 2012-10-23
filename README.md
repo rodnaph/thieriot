@@ -9,14 +9,7 @@ jobs set up, and to easily create any that are missing.
 Usage
 -----
 
-```bash
-$> trt
-Thieriot 0.0.6
-
-✓ [1]   master (building)
-✘ [2]   new-feature-branch
-✓ [3]   other feature branch
-```
+![](http://github.com/rodnaph/thieriot/raw/master/screenshot.png)
 
 As you can see, each of your branches will be listed, along with...
 
