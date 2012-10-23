@@ -9,7 +9,7 @@ use LWP::UserAgent;
 use HTTP::Request::Common;
 use File::Basename qw(dirname);
 
-use constant VERSION => '0.0.5';
+use constant VERSION => '0.0.6';
 
 #
 # signal an error message and exit
@@ -177,7 +177,18 @@ sub is_building
 {
     my ($job) = @_;
 
-    return $job && substr($job->{color},-5) eq "anime";
+    return $job && substr($job->{color},-5) eq 'anime';
+}
+
+#
+# indicates if the job is failing
+#
+sub is_failing
+{
+    my ($job) = @_;
+    my $color = $job->{color};
+
+    return $job && $color eq 'red';
 }
 
 #
@@ -192,6 +203,9 @@ sub branch_list
 
     foreach (@branches) {
         my $job = $jobs{$_};
+        my $name = is_failing($job)
+            ? "\e[0;41m$_\e[0m"
+            : "\e[0:36m$_\e[0m";
         my $exists = $job
             ? "\e[0:36m✓\e[0m"
             : "\e[0;31m✘\e[0m";
@@ -199,7 +213,7 @@ sub branch_list
             ? ' (building)'
             : '';
 
-        print "$exists \e[0;32m[$index]\e[0m\t$_$building\n";
+        print "$exists \e[0;32m[$index]\e[0m\t$name$building\n";
         $index++;
     }
 }

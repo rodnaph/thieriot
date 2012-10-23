@@ -11,7 +11,7 @@ Usage
 
 ```bash
 $> trt
-Thieriot 0.0.1
+Thieriot 0.0.6
 
 ✓ [1]   master (building)
 ✘ [2]   new-feature-branch
@@ -23,6 +23,7 @@ As you can see, each of your branches will be listed, along with...
 * a tick/cross indicating if it has a build on Jenkins
 * an ID you can refer to it as for commands
 * information about if it is currently building or not
+* if the branch has a build and it's failing the name will be red
 
 Configuration
 -------------
