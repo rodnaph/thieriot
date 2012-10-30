@@ -9,7 +9,7 @@ use LWP::UserAgent;
 use HTTP::Request::Common;
 use File::Basename qw(dirname);
 
-use constant VERSION => '0.0.6';
+use constant VERSION => '0.0.7';
 
 #
 # signal an error message and exit
@@ -261,6 +261,10 @@ sub branch_delete
 {
     my ($config, $branch) = @_;
     my $project = project_name($config);
+
+    if ($branch eq 'master') {
+        error('You cannot delete the master build!');
+    }
 
     make_request(POST job_url($config, $branch, '/doDelete'));
 }
