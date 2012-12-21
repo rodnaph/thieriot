@@ -150,9 +150,11 @@ sub fetch_branch
 {
     my ($id) = @_;
     my @branches = fetch_branches();
-    my $name = $branches[$id - 1];
+    my $name = ($id =~ /^\d+$/)
+        ? $branches[$id - 1]
+        : $id;
 
-    if (!$name) {
+   if (!$name) {
         error('Invalid branch ID')
     }
 
