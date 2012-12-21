@@ -154,7 +154,7 @@ sub fetch_branch
         ? $branches[$id - 1]
         : $id;
 
-   if (!$name) {
+    if (!$name) {
         error('Invalid branch ID')
     }
 
