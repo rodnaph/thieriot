@@ -1,0 +1,5 @@
+project_type:           devel
+
+project_name:           thieriot
+portfile:               macports/Portfile
+
