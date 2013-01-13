@@ -299,8 +299,8 @@ sub follow_url
 }
 
 #
-# Return job output to follow from the URL, with the given
-# $start point as the offset
+# Return response from the follow from the URL, with the given
+# start point as the offset
 #
 
 sub follow_content
@@ -324,13 +324,13 @@ sub follow_job
 {
     my ($url) = @_;
     my $res = follow_content($url, 0);
-    my $header = 'x-text-size';
-    my $start = $res->header($header);
+    my $offsetHeader = 'x-text-size';
+    my $start = $res->header($offsetHeader);
 
     while (1) {
         my $res = follow_content($url, $start);
         print $res->decoded_content;
-        $start  = $res->header($header);
+        $start = $res->header($offsetHeader);
     }
 }
 
