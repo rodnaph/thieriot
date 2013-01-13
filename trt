@@ -100,6 +100,21 @@ sub job_url
 }
 
 #
+# Fetch info about last build for a job
+#
+
+sub last_build
+{
+    my ($config, $branch) = @_;
+
+    my $job_url = job_url($config, $branch, '/api/json');
+    my $json = fetch_json($job_url);
+
+    return $json->{lastBuild};
+
+}
+
+#
 # returns url for a jobs config
 #
 sub config_url
@@ -272,6 +287,54 @@ sub branch_delete
 }
 
 #
+# Fetch the URL for progressive job output
+#
+
+sub follow_url
+{
+    my ($config, $branch, $build) = @_;
+    my $relative = sprintf('/%d/logText/progressiveHtml', $build->{number});
+
+    return job_url($config, $branch, $relative); 
+}
+
+#
+# Return job output to follow from the URL, with the given
+# $start point as the offset
+#
+
+sub follow_content
+{
+    my ($url, $start) = @_;
+    my $res = make_request(POST $url, [ start => $start ]);
+
+    if ($res->is_error) {
+        error($res->decoded_content);
+    }
+
+    return $res;
+}
+
+#
+# Follow the output of the job at the URL (where the URL
+# is the progressive output url)
+#
+
+sub follow_job
+{
+    my ($url) = @_;
+    my $res = follow_content($url, 0);
+    my $header = 'x-text-size';
+    my $start = $res->header($header);
+
+    while (1) {
+        my $res = follow_content($url, $start);
+        print $res->decoded_content;
+        $start  = $res->header($header);
+    }
+}
+
+#
 # prints usage information
 #
 sub print_help
@@ -283,6 +346,7 @@ Usage: trt ACTION ID
     build ID        Build job for branch ID
     delete ID       Delete job for branch ID
     view ID         Open browser to the jobs page for the branch ID
+    follow ID       Follow a build (if it's running)
 EOT
 
 }
@@ -336,6 +400,13 @@ elsif ($action eq "view") {
     my $url = job_url($config, $branch, '/');
     `open $url`;
     print "Browser opened.\n";
+}
+
+elsif ($action eq "follow") {
+    my $build = last_build($config, $branch);
+    my $url = follow_url($config, $branch, $build);
+    print "Following build #$build->{number} (ctrl-c to stop)\n\n";
+    follow_job($url);
 }
 
 else {

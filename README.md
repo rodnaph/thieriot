@@ -73,6 +73,19 @@ then you can kick them off from the shell.
 $> trt build 3
 ```
 
+Following a build
+-----------------
+
+When a job is building you can follow its output right from the shell using the
+_follow_ command.
+
+```bash
+%> trt follow 3
+```
+
+This will then print the job's console output straight to the shell.  You can stop
+following by pressing _ctrl-c_.
+
 Deleting a job
 --------------
 
