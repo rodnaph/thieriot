@@ -119,8 +119,13 @@ sub job_json
 {
     my ($config, $branch) = @_;
     my $url = job_url($config, $branch, '/api/json');
+    my $json = fetch_json($url);
 
-    return fetch_json($url);
+    if (!$json) {
+        error("job does not exist '$branch'");
+    }
+
+    return $json;
 }
 
 #
