@@ -363,8 +363,17 @@ sub follow_job
 
     while (1) {
         my $res = follow_content($url, $start);
-        print $res->decoded_content;
-        $start = $res->header('x-text-size');
+        my $content = $res->decoded_content;
+        if ($content) {
+            print $content;
+            $start = $res->header('x-text-size');
+        }
+        else {
+            my $build = build_json($config, $branch, $number);
+            if (!$build->{building}) {
+                return;
+            }
+        }
         sleep(1);
     }
 }
