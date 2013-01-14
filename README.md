@@ -3,11 +3,11 @@
 
 Thieriot is a simple tool for managing Jenkins builds for a project, right
 from the shell.  It allows you to check which of your branches have Jenkins
-jobs set up, and to easily create any that are missing.
+jobs set up, easily create any that are missing, kick off jobs, etc...
 
 ## Usage
 
-![](http://github.com/rodnaph/thieriot/raw/master/screenshot.png)
+![](http://github.com/rodnaph/thieriot/raw/master/images/default.png)
 
 As you can see, each of your branches will be listed, along with...
 
@@ -58,26 +58,25 @@ $> trt create 2
 
 This will try and create a job for the branch numbered _2_.
 
-## Building a job
+## Building jobs
 
 Your jobs will probably build automatically on some commit hooks, but if they don't
 then you can kick them off from the shell.
 
 ```bash
-$> trt build 3
+$> trt follow 3
 ```
 
-## Following a build
+This will start a job if it's not already building, and then print the console
+output to the shell.
 
-When a job is building you can follow its output right from the shell using the
-_follow_ command.  If the job is not yet running it will be started.
+![](http://github.com/rodnaph/thieriot/raw/master/images/follow.png)
+
+If you only want to build the job and not follow its output use *build*
 
 ```bash
-%> trt follow 3
+%> trt build 3
 ```
-
-This will then print the job's console output straight to the shell.  You can stop
-following by pressing _ctrl-c_.
 
 ## Deleting a job
 
