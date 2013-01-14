@@ -293,7 +293,7 @@ sub branch_delete
 sub follow_url
 {
     my ($config, $branch, $build) = @_;
-    my $relative = sprintf('/%d/logText/progressiveHtml', $build->{number});
+    my $relative = sprintf('/%d/logText/progressiveText', $build->{number});
 
     return job_url($config, $branch, $relative); 
 }
