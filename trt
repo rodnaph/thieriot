@@ -35,13 +35,7 @@ sub make_request
         $ENV{'THIERIOT_TOKEN'}
     );
 
-    my $res = $ua->request( $req );
-
-    if ($res->is_error) {
-        error("request failed\n\n" . $res->decoded_content);
-    }
-
-    return $res;
+    return $ua->request( $req );
 }
 
 #
@@ -52,7 +46,9 @@ sub get
     my ($url) = @_;
     my $res = make_request(GET $url);
 
-    return $res->decoded_content;
+    return $res->is_error
+        ? ''
+        : $res->decoded_content;
 }
 
 #
@@ -61,8 +57,11 @@ sub get
 sub fetch_json
 {
     my ($url) = @_;
+    my $data = get($url);
 
-    return decode_json(get($url));
+    return $data
+        ? decode_json($data)
+        : 0;
 }
 
 #
@@ -100,18 +99,28 @@ sub job_url
 }
 
 #
-# Fetch info about last build for a job
+# Fetches the JSON for a build number
 #
 
-sub last_build
+sub build_json
+{
+    my ($config, $branch, $number) = @_;
+    my $relative = sprintf('/%s/api/json', $number);
+    my $url = job_url($config, $branch, $relative);
+
+    return fetch_json($url);
+}
+
+#
+# Fetch the json for the specified job
+#
+
+sub job_json
 {
     my ($config, $branch) = @_;
+    my $url = job_url($config, $branch, '/api/json');
 
-    my $job_url = job_url($config, $branch, '/api/json');
-    my $json = fetch_json($job_url);
-
-    return $json->{lastBuild};
-
+    return fetch_json($url);
 }
 
 #
@@ -287,13 +296,30 @@ sub branch_delete
 }
 
 #
+# Waits for a build to start
+#
+
+sub wait_for_job
+{
+    my ($config, $branch, $number) = @_;
+
+    while (1) {
+        my $build = build_json($config, $branch, $number);
+        if ($build && $build->{building}) {
+            return;
+        }
+        sleep(1);
+    }
+}
+
+#
 # Fetch the URL for progressive job output
 #
 
 sub follow_url
 {
-    my ($config, $branch, $build) = @_;
-    my $relative = sprintf('/%d/logText/progressiveText', $build->{number});
+    my ($config, $branch, $number) = @_;
+    my $relative = sprintf('/%d/logText/progressiveText', $number);
 
     return job_url($config, $branch, $relative); 
 }
@@ -306,13 +332,23 @@ sub follow_url
 sub follow_content
 {
     my ($url, $start) = @_;
-    my $res = make_request(POST $url, [ start => $start ]);
 
-    if ($res->is_error) {
-        error($res->decoded_content);
-    }
+    return make_request(POST $url, [start => $start]);
+}
 
-    return $res;
+#
+# Return the current offset of the job output
+#
+
+sub follow_offset
+{
+    my ($config, $branch, $number) = @_;
+    my $url = follow_url($config, $branch, $number);
+    my $res = follow_content($url, 0);
+
+    return $res
+        ? $res->header('x-text-size')
+        : 0;
 }
 
 #
@@ -322,15 +358,40 @@ sub follow_content
 
 sub follow_job
 {
-    my ($url) = @_;
-    my $res = follow_content($url, 0);
-    my $offsetHeader = 'x-text-size';
-    my $start = $res->header($offsetHeader);
+    my ($config, $branch, $number, $start) = @_;
+    my $url = follow_url($config, $branch, $number);
 
     while (1) {
         my $res = follow_content($url, $start);
         print $res->decoded_content;
-        $start = $res->header($offsetHeader);
+        $start = $res->header('x-text-size');
+        sleep(1);
+    }
+}
+
+#
+# Follow the branches build output, starting a job if one
+# isn't already running.
+#
+
+sub follow_branch
+{
+    my ($config, $branch) = @_;
+    my $job = job_json($config, $branch);
+    my $lastBuild = build_json($config, $branch, $job->{lastBuild}->{number});
+
+    if ($lastBuild->{building}) {
+        my $number = $lastBuild->{number};
+        my $start = follow_offset($config, $branch, $number);
+        print "Following job #$number for '$branch'\n\n";
+        follow_job($config, $branch, $number, $start);
+    }
+    else {
+        my $number = $job->{nextBuildNumber};
+        print "Created job #$number for '$branch'\n\n";
+        branch_build($config, $branch);
+        wait_for_job($config, $branch, $number);
+        follow_job($config, $branch, $number, 0);
     }
 }
 
@@ -346,7 +407,7 @@ Usage: trt ACTION ID
     build ID        Build job for branch ID
     delete ID       Delete job for branch ID
     view ID         Open browser to the jobs page for the branch ID
-    follow ID       Follow a build (if it's running)
+    follow ID       Follow a build, starting if needed 
 EOT
 
 }
@@ -403,10 +464,7 @@ elsif ($action eq "view") {
 }
 
 elsif ($action eq "follow") {
-    my $build = last_build($config, $branch);
-    my $url = follow_url($config, $branch, $build);
-    print "Following build #$build->{number} (ctrl-c to stop)\n\n";
-    follow_job($url);
+    follow_branch($config, $branch);
 }
 
 else {

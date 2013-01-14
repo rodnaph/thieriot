@@ -70,7 +70,7 @@ $> trt build 3
 ## Following a build
 
 When a job is building you can follow its output right from the shell using the
-_follow_ command.
+_follow_ command.  If the job is not yet running it will be started.
 
 ```bash
 %> trt follow 3
@@ -107,7 +107,6 @@ instance if your project has a packaging job named _myproject-pkg_ you could kic
 off and follow its progress using...
 
 ```bash
-trt build pkg
 trt follow pkg
 ```
 
