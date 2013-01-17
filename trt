@@ -301,6 +301,22 @@ sub branch_delete
 }
 
 #
+# cancel the last job for a branch
+#
+
+sub branch_cancel
+{
+    my ($config, $branch) = @_;
+    my $job = job_json($config, $branch);
+    my $number = $job->{lastBuild}->{number};
+    my $url = job_url($config, $branch, sprintf('/%d/stop', $number));
+
+    print "Cancelling job #$number for '$branch'\n";
+
+    make_request(POST $url);
+}
+
+#
 # Waits for a build to start
 #
 
@@ -469,6 +485,10 @@ elsif ($action eq "build") {
 elsif ($action eq "delete") {
     branch_delete($config, $branch);
     print "Branch '$branch' deleted!\n";
+}
+
+elsif ($action eq "cancel") {
+    branch_cancel($config, $branch);
 }
 
 elsif ($action eq "view") {

@@ -86,7 +86,15 @@ When you're done with feature branches, it's easy to delete them right from the 
 $> trt delete 2
 ```
 
-Watch you don't delete master though! :O
+Watch you don't delete master though! :O (don't worry Thieriot won't let you)
+
+## Cancelling a job
+
+You can cancel a running job easily too...
+
+```bash
+$> trt cancel 3
+```
 
 ## Viewing a job
 
