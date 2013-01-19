@@ -9,7 +9,7 @@ use LWP::UserAgent;
 use HTTP::Request::Common;
 use File::Basename qw(dirname);
 
-use constant VERSION => '1.0.0';
+use constant VERSION => '1.1.0';
 
 #
 # signal an error message and exit
