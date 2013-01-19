@@ -58,7 +58,7 @@ $> trt create 2
 
 This will try and create a job for the branch numbered _2_.
 
-## Building jobs
+## Building and following jobs
 
 Your jobs will probably build automatically on some commit hooks, but if they don't
 then you can kick them off from the shell.
@@ -75,36 +75,32 @@ output to the shell.
 If you only want to build the job and not follow its output use *build*
 
 ```bash
-%> trt build 3
+$> trt build 3
 ```
 
-## Deleting a job
+## Cancelling, viewing and deleting jobs
 
-When you're done with feature branches, it's easy to delete them right from the shell.
-
-```bash
-$> trt delete 2
-```
-
-Watch you don't delete master though! :O (don't worry Thieriot won't let you)
-
-## Cancelling a job
-
-You can cancel a running job easily too...
+If you need to stop a running job that's easy with the cancel command...
 
 ```bash
 $> trt cancel 3
 ```
 
-## Viewing a job
-
-To quickly open your browser to the branch's jobs page on Jenkins, use the view command.
+If you want to quickly open your browser to the branch's jobs page on
+Jenkins, use the view command...  _NB:_ Only works on OSX at the moment.
 
 ```bash
 $> trt view 2
 ```
 
-(NB: Only works on OSX at the moment)
+And when you're done with feature branch jobs, it's easy to delete them right from the shell.
+
+```bash
+$> trt delete 2
+```
+
+Watch you don't delete master though! :O (don't worry Thieriot won't let you) You can
+cancel a running job easily too...
 
 ## Arbitrary job names
 
@@ -114,7 +110,7 @@ instance if your project has a packaging job named _myproject-pkg_ you could kic
 off and follow its progress using...
 
 ```bash
-trt follow pkg
+$> trt follow pkg
 ```
 
 # Installation
@@ -124,7 +120,7 @@ trt follow pkg
 You can install Thieriot straight through MacPorts.
 
 ```bash
-port install thieriot
+$> port install thieriot
 ```
 
 ## From Source
