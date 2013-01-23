@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>Thieriot by rodnaph</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Thieriot</h1>
+        <h2>Jenkins/Git build helper</h2>
+        <a href="https://github.com/rodnaph/thieriot" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>Thieriot</h1>
+
+<p>Thieriot is a simple tool for managing Jenkins builds for a project, right
+from the shell.  It allows you to check which of your branches have Jenkins
+jobs set up, easily create any that are missing, kick off jobs, etc...</p>
+
+<h2>Usage</h2>
+
+<p><img src="http://github.com/rodnaph/thieriot/raw/master/images/default.png" alt=""></p>
+
+<p>As you can see, each of your branches will be listed, along with...</p>
+
+<ul>
+<li>a tick/cross indicating if it has a build on Jenkins</li>
+<li>an ID you can refer to it as for commands</li>
+<li>information about if it is currently building or not</li>
+<li>if the branch has a build and it's failing the name will be red</li>
+</ul><h2>Configuration</h2>
+
+<p>Configuration is handled via a YAML file in your project root called <em>.thieriot.yml</em>.  The only required
+parameter is the <em>jenkins_url</em>, if you don't specify the project name it will be guessed from the folder
+name of your project.</p>
+
+<div class="highlight"><pre><span class="l-Scalar-Plain">jenkins_url</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">jenkins.mycompany.com</span>
+<span class="l-Scalar-Plain">project_name</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">myproject</span>
+</pre></div>
+
+<p>Thieriot assumes your jobs are named after your project, with a hyphen then the branch name.  For example:</p>
+
+<pre><code>myproject-master
+myproject-featurebranch
+etc...
+</code></pre>
+
+<h2>Authentication</h2>
+
+<p>If your Jenkins instance requires authentication you can configure this using your
+Jenkins username and your API token.  Just create the following environment
+variables (eg. in .bash_profile or .zshrc).</p>
+
+<div class="highlight"><pre><span class="nb">export </span><span class="nv">THIERIOT_USER</span><span class="o">=</span>myuser
+<span class="nb">export </span><span class="nv">THIERIOT_TOKEN</span><span class="o">=</span>jj324g23jh4gj32h4g3hj4g234j23
+</pre></div>
+
+<h2>Creating a Jenkins job</h2>
+
+<p>The way Thieriot works is to use your master branch's job to create copies for
+your feature branches.  This obviously means you need to create your master
+build yourself, but after that setting up jobs for your feature branches is easy.</p>
+
+<div class="highlight"><pre><span class="nv">$&gt;</span> trt create 2
+</pre></div>
+
+<p>This will try and create a job for the branch numbered <em>2</em>.</p>
+
+<h2>Building and following jobs</h2>
+
+<p>Your jobs will probably build automatically on some commit hooks, but if they don't
+then you can kick them off from the shell.</p>
+
+<div class="highlight"><pre><span class="nv">$&gt;</span> trt follow 3
+</pre></div>
+
+<p>This will start a job if it's not already building, and then print the console
+output to the shell.</p>
+
+<p><img src="http://github.com/rodnaph/thieriot/raw/master/images/follow.png" alt=""></p>
+
+<p>If you only want to build the job and not follow its output use <em>build</em></p>
+
+<div class="highlight"><pre><span class="nv">$&gt;</span> trt build 3
+</pre></div>
+
+<h2>Cancelling, viewing and deleting jobs</h2>
+
+<p>If you need to stop a running job that's easy with the cancel command...</p>
+
+<div class="highlight"><pre><span class="nv">$&gt;</span> trt cancel 3
+</pre></div>
+
+<p>If you want to quickly open your browser to the branch's jobs page on
+Jenkins, use the view command...  <em>NB:</em> Only works on OSX at the moment.</p>
+
+<div class="highlight"><pre><span class="nv">$&gt;</span> trt view 2
+</pre></div>
+
+<p>And when you're done with feature branch jobs, it's easy to delete them right from the shell.</p>
+
+<div class="highlight"><pre><span class="nv">$&gt;</span> trt delete 2
+</pre></div>
+
+<p>Watch you don't delete master though! :O (don't worry Thieriot won't let you) You can
+cancel a running job easily too...</p>
+
+<h2>Arbitrary job names</h2>
+
+<p>All Thieriot's commands can take a number as the alias for the branch/job.  But you can
+also use arbitrary names, that may match jobs that you don't have branches for.  For
+instance if your project has a packaging job named <em>myproject-pkg</em> you could kick this
+off and follow its progress using...</p>
+
+<div class="highlight"><pre><span class="nv">$&gt;</span> trt follow pkg
+</pre></div>
+
+<h1>Installation</h1>
+
+<h2>Macports</h2>
+
+<p>You can install Thieriot straight through MacPorts.</p>
+
+<div class="highlight"><pre><span class="nv">$&gt;</span> port install thieriot
+</pre></div>
+
+<h2>From Source</h2>
+
+<p>To install Thieriot from source just clone the repo, and put it in your <em>PATH</em>.
+You might also need some of the dependencies, listed below depending on your OS.</p>
+
+<ul>
+<li>Perl</li>
+<li>Perl JSON</li>
+<li>Perl JAML</li>
+</ul><p>Perl modules available from CPAN if they're not packaged for your OS.</p>
+
+<pre><code>$&gt; sudo cpan
+install JSON
+install YAML
+</code></pre>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/rodnaph/thieriot/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/rodnaph/thieriot/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/rodnaph/thieriot"></a> is maintained by <a href="https://github.com/rodnaph">rodnaph</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+  
+  </body>
+</html>
