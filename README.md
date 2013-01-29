@@ -1,4 +1,3 @@
-
 # Thieriot
 
 Thieriot is a simple tool for managing Jenkins builds for a project, right
@@ -99,8 +98,7 @@ And when you're done with feature branch jobs, it's easy to delete them right fr
 $> trt delete 2
 ```
 
-Watch you don't delete master though! :O (don't worry Thieriot won't let you) You can
-cancel a running job easily too...
+Watch you don't delete master though! :O (don't worry Thieriot won't let you)
 
 ## Arbitrary job names
 
