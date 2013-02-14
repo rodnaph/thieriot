@@ -236,9 +236,9 @@ sub branch_list
         my $job = $jobs{$_};
         my $name = is_failing($job)
             ? "\e[0;41m$_\e[0m"
-            : "\e[0:36m$_\e[0m";
+            : "\e[0;36m$_\e[0m";
         my $exists = $job
-            ? "\e[0:36m✓\e[0m"
+            ? "\e[0;36m✓\e[0m"
             : "\e[0;31m✘\e[0m";
         my $building = is_building($job)
             ? ' (building)'
